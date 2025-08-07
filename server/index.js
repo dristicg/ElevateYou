@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 require('dotenv').config();
+const multer = require('multer');
 
 const app = express();
 app.use(cors());
@@ -24,6 +25,22 @@ app.listen(process.env.PORT, () => {
   console.log(`✅ Server running on port ${process.env.PORT}`);
 });
 
+
+
+//// set up multer storage 
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Ensure this folder exists or create it
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage });
+
 // resume upload route
 
 app.post('/upload-resume', upload.single('resume'), (req, res) => {
@@ -37,4 +54,3 @@ app.post('/upload-resume', upload.single('resume'), (req, res) => {
     path: req.file.path
   });
 });
-////
